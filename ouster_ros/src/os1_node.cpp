@@ -37,15 +37,15 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "ouster_driver");
     ros::NodeHandle nh("~");
 
-    auto scan_dur = ns(nh.param("scan_dur_ns", 100000000));
-    auto os1_hostname = nh.param("os1_hostname", std::string("localhost"));
-    auto os1_udp_dest = nh.param("os1_udp_dest", std::string("192.168.1.1"));
-    auto os1_lidar_port = nh.param("os1_lidar_port", -1);
-    auto os1_imu_port = nh.param("os1_imu_port", -1);
-    auto replay_mode = nh.param("replay", true);
+    ns scan_dur = ns(nh.param("scan_dur_ns", 100000000));
+    std::string os1_hostname = nh.param("os1_hostname", std::string("localhost"));
+    std::string os1_udp_dest = nh.param("os1_udp_dest", std::string("192.168.1.1"));
+    int os1_lidar_port = nh.param("os1_lidar_port", -1);
+    int os1_imu_port = nh.param("os1_imu_port", -1);
+    bool replay_mode = nh.param("replay", true);
 
-    auto lidar_pub = nh.advertise<sensor_msgs::PointCloud2>("points", 10);
-    auto imu_pub = nh.advertise<sensor_msgs::Imu>("imu", 10);
+    ros::Publisher lidar_pub = nh.advertise<sensor_msgs::PointCloud2>("points", 10);
+    ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("imu", 10);
 
     auto lidar_handler = ouster_ros::OS1::batch_packets(
         scan_dur, [&](ns scan_ts, const ouster_ros::OS1::CloudOS1& cloud) {
@@ -58,16 +58,16 @@ int main(int argc, char** argv) {
     };
 
     if (replay_mode) {
-        auto lidar_packet_sub = nh.subscribe<PacketMsg, const PacketMsg&>(
+        ros::Subscriber lidar_packet_sub = nh.subscribe<PacketMsg, const PacketMsg&>(
             "lidar_packets", 500, lidar_handler);
-        auto imu_packet_sub = nh.subscribe<PacketMsg, const PacketMsg&>(
+        ros::Subscriber imu_packet_sub = nh.subscribe<PacketMsg, const PacketMsg&>(
             "imu_packets", 500, imu_handler);
         ros::spin();
     } else {
-        auto lidar_packet_pub = nh.advertise<PacketMsg>("lidar_packets", 500);
-        auto imu_packet_pub = nh.advertise<PacketMsg>("imu_packets", 500);
+        ros::Publisher lidar_packet_pub = nh.advertise<PacketMsg>("lidar_packets", 500);
+        ros::Publisher imu_packet_pub = nh.advertise<PacketMsg>("imu_packets", 500);
 
-        auto cli = ouster::OS1::init_client(os1_hostname, os1_udp_dest,
+        std::shared_ptr<client> cli = ouster::OS1::init_client(os1_hostname, os1_udp_dest,
                                             os1_lidar_port, os1_imu_port);
         if (!cli) {
             ROS_ERROR("Failed to initialize sensor at: %s", os1_hostname.c_str());
