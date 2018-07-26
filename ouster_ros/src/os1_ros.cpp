@@ -136,7 +136,7 @@ static ns nearest_scan_dur(ns scan_dur, ns ts) {
 std::function<void(const PacketMsg&)> batch_packets(
     ns scan_dur, const std::function<void(ns, const CloudOS1&)>& f) {
     auto cloud = std::make_shared<OS1::CloudOS1>();
-    auto scan_ts = ns(-1L);
+    ns scan_ts = ns(-1L);
 
     return [=](const PacketMsg& pm) mutable {
         ns packet_ts = OS1::timestamp_of_lidar_packet(pm);
@@ -145,7 +145,7 @@ std::function<void(const PacketMsg&)> batch_packets(
 
         OS1::add_packet_to_cloud(scan_ts, scan_dur, pm, *cloud);
 
-        auto batch_dur = packet_ts - scan_ts;
+        ns batch_dur = packet_ts - scan_ts;
         if (batch_dur >= scan_dur || batch_dur < ns(0)) {
             f(scan_ts, *cloud);
 
