@@ -15,7 +15,8 @@
 * Run `ouster_client_example <os1_hostname> <udp_data_dest_ip>` where `<os1_hostname>` is the hostname or IP address of the OS1 sensor, and `<udp_data_dest_ip>` is the IP to which the sensor should send lidar data
 
 ## Building the Sample ROS Node
-* Supports Ubuntu 16.04 with ROS Kinetic (for ouster_ros)
+* Supports Ubuntu 16.04 with ROS Kinetic (for ouster_ros). It requires to set DHCP service through dnsmasq in order to set the IP od the device.
+* Supports Ubuntu 14.04 with ROS Indigo (for ouster_ros). It requires to set DHCP service (through dhcpd, p.e).
 * ROS installation instructions can be found [here](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 * Additionally requires ros-kinetic-pcl-ros and, optionally, ros-kinetic-rviz for visualization
 * Be sure to source the ROS setup script before building. For example:`source /opt/ros/kinetic/setup.bash`
